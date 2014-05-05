@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Examples</title>
+<link href="" rel="stylesheet">
+<script type="text/javascript" src="../js/jquery.js"></script>
+<style>
+	.wrap{
+		width: 60%;
+		height: 400px;
+		margin: 100px auto 0px auto;
+		border: 1px solid #BBB;
+		position: relative;
+	}
+	.dot{
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		background-color: #000;
+	}
+</style>
+</head>
+<body>
+    <div class="wrap">
+
+    </div>
+</body>
+</html>
+
+<script>
+	var totalDot = 500;  //每个半圆由1000个点组成
+	var tuoyuan ;
+	var ellipse = function ( x , y , a , b ){  //椭圆类
+			this.x = x;
+			this.y = y;
+			this.a = a;
+			this.b = b;
+		}
+	ellipse.prototype = {
+		panduan : function(x , y){   //判断函数
+			return ( (x-this.x)*(x-this.x)/ (this.a*this.a) ) + ( (this.y - y)*(this.y - y) / (this.b*this.b) ) > 1;
+		}
+	};
+	$(document).ready(function(){
+		render( 200 , 200 , 150 , 80 );
+		$(".wrap").click(function(event){
+			var offset = $(".wrap").offset()
+		//	alert("x:"+ (event.clientX - offset.left )+",y:"+ ( event.clientY - offset.top) );
+			tuoyuan.panduan(event.clientX- offset.left , event.clientY- offset.top)?alert("在椭圆外！"):alert("在椭圆内！");
+		});
+	});
+
+	//创建一个点
+	function createDot( x , y ){
+		var dot = $("<div class='dot'>");
+		dot.css("left",x).css("top",y);
+		return dot;
+	}
+
+	//用很多点创建一个椭圆,x坐标,y坐标为椭圆中心,a,b为长半轴,短半轴,单位为像素
+	function render( x , y , a , b){
+		tuoyuan = new ellipse(x , y , a , b);
+		var center = createDot( x, y);
+		$(".wrap").append(center); //中心
+		var space = 2*a/totalDot;  //每个点之间的间隔
+		for( var i = 1; i<= totalDot; i++ ){
+			var downDot = createDot( a-space*i , calc( a-(space*i) , a , b ) ),
+				upDot = createDot( ((a-space*i)*-1) , calc( ((a-space*i)) , a , b)*-1 );
+			center.append( upDot ).append( downDot );
+		}
+	}
+
+	//计算y的值
+	function calc(x, a, b){
+		return Math.sqrt( (a*a*b*b - x*x*b*b)/(a*a)  );
+	}
+
+</script>
