@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Document
+        jsControlled="true"
+        jsController="StartLayer"
+        resolution="default"
+        >
+
+    <Resolutions>
+        <Resolution centeredOrigin="false" ext="iphone" height="1280" width="720" name="default" scale="1"/>
+        <Resolution centeredOrigin="false" ext="iphone" height="720" width="1280" name="default1" scale="1"/>
+    </Resolutions>
+
+    <Animations>
+        <Animation autoPlay="true"
+                   id="0"
+                   name="Default Timeline"
+                   length="10"
+                   chainedId="0"
+                   offset="0.0"
+                   position="0.0"
+                   resolution="30"
+                   scale="128">
+            <CallbackChannel>
+            </CallbackChannel>
+            <SoundChannel>
+            </SoundChannel>
+        </Animation>
+
+    </Animations>
+    <Layer
+            positionX="0" positionY="0.0"
+            sizeType="Percent"
+            width="100" height="100"
+            anchorPointX="0.5" anchorPointY="0.5" ignoreAnchorPoint="true"
+            scaleX="1" scaleY="1"
+            positionType="Percent">
+
+        <Sprite positionType="LeftBottom" positionX="0" positionY="0" anchorPointX="0" width="720.0" height="1280.0"
+                anchorPointY="0" src="res/bg_main.png"/>
+        <Sprite positionType="LeftBottom" positionX="261.0" positionY="1098.0" anchorPointX="0.5"
+                anchorPointY="0.5" src="res/star_packer.plist/pop.png"/>
+        <Sprite positionType="LeftBottom" positionX="460.0" positionY="876.0" anchorPointX="0.5"
+                anchorPointY="0.5" src="res/star_packer.plist/star.png"/>
+        <Menu positionType="LeftBottom" positionX="320.66666" positionY="495.66666" anchorPointX="0.5"
+              anchorPointY="0.5">
+            <MenuItem positionType="LeftBottom" positionX="43.0" positionY="105.0" anchorPointX="0.5"
+                      anchorPointY="0.5" normalImage="res/star_packer.plist/newgame.png" target="Doc" var="newGameBtn"
+                      onClick="newGameClicked"/>
+            <MenuItem positionType="LeftBottom" positionX="45.0" positionY="-30.0" anchorPointX="0.5"
+                      anchorPointY="0.5" normalImage="res/star_packer.plist/resume.png"/>
+            <MenuItem positionType="LeftBottom" positionX="42.5" positionY="-167.5" anchorPointX="0.5"
+                      anchorPointY="0.5" normalImage="res/star_packer.plist/rate.png"/>
+        </Menu>
+    </Layer>
+
+
+</Document>
