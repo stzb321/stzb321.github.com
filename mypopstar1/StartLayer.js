@@ -24,10 +24,10 @@ StartLayer.prototype.onDidLoadFromCCB = function () {
 
 StartLayer.prototype.onEnter = function () {
     cc.log("onEnter");
-    //if(sys.platform != 'browser' ){
+    if(sys.platform != 'browser' ){
         cc.StarParticle.create(this.rootNode , 200, 800  , "leaf_open");
         cc.StarParticle.create(this.rootNode , 600, 1150  , "leaf_open");
-    //}
+    }
 };
 
 StartLayer.prototype.onExit = function () {
