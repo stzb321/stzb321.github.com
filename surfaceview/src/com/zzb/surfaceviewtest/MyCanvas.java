@@ -26,7 +26,7 @@ public class MyCanvas extends SurfaceView implements SurfaceHolder.Callback{
 	public MyCanvas(Context context) {
 		super(context);
 		paint.setColor(Color.BLUE);
-		getHolder().addCallback(this);
+		getHolder().addCallback(this); //这句执行完了之后,马上就会回调 surfaceCreated方法了 然后开启timer
 	}
 
 	public MyCanvas(Context context, AttributeSet attrs, int defStyle) {
