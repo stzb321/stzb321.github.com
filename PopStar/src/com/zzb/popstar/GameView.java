@@ -6,12 +6,17 @@ import java.util.Random;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 
-public class GameView extends View {
+public class GameView extends SurfaceView implements SurfaceHolder.Callback {
+	
+	private Thread drawThread;
+	private volatile boolean drawFlag = false;
 	
 	public GameView(Context context) {
 		super(context);
@@ -29,7 +34,7 @@ public class GameView extends View {
 	}
 
 	private static int starW = 64 , starH = 64;
-	private int width =0 , height = 0;
+	private int height = 0;
 	private int row = 10 , col = 10;
 	private int space = 8;
 	private List<Star> selectStars = new ArrayList<Star>();
@@ -39,11 +44,12 @@ public class GameView extends View {
 	public void initView(){
 		setFocusable(true);
 		initStarArr();
+		getHolder().addCallback(this); //这句执行完了之后,马上就会回调 surfaceCreated方法了 然后开启thread
 	}
 	
-	@SuppressLint("DrawAllocation")
-	@Override
-	protected void onDraw(Canvas canvas) {
+	protected void draw() {
+		Canvas canvas = getHolder().lockCanvas();
+		canvas.drawColor(Color.BLACK);
 		for(int i=0 ; i < starArr.size() ; i ++){
 			for(int j=0 ; j < starArr.get(i).size() ; j ++){
 				Star star = starArr.get(i).get(j);
@@ -52,12 +58,11 @@ public class GameView extends View {
 				canvas.drawBitmap(star.getBmp(), col*(starW+space), height - (row+1)*(starW+space), new Paint());
 			}
 		}
-		super.onDraw(canvas);
+		getHolder().unlockCanvasAndPost(canvas);
 	}
 	
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-		width = w;
 		height = h;
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
@@ -101,7 +106,6 @@ public class GameView extends View {
 				selectStars = new ArrayList<Star>();
 			}
 		}
-		invalidate();
 		return super.onTouchEvent(event);
 	}
 	
@@ -121,8 +125,8 @@ public class GameView extends View {
 	 */
 	private void seekStar(Star star){
 		try{
-			int row = star.getRow();
-			int col = star.getCol();
+			int starRow = star.getRow();
+			int starCol = star.getCol();
 			if(isContain(star)){
 				return;
 			}
@@ -131,33 +135,33 @@ public class GameView extends View {
 			}
 			
 			//向上寻找
-			int topLength = starArr.get(col).size();
-			if(row+1 >= topLength){
+			int topLength = starArr.get(starCol).size();
+			if(starRow+1 >= topLength){
 				return;
-			}else if(starArr.get(col).get(row+1).getColor().equals(star.getColor())){
-				seekStar(starArr.get(col).get(row+1));
+			}else if(starArr.get(starCol).get(starRow+1).getColor().equals(star.getColor())){
+				seekStar(starArr.get(starCol).get(starRow+1));
 			}
 			
 			//向右寻找
 			int rightLength = starArr.size();
-			if(col+1 >= rightLength){
+			if(starCol+1 >= rightLength){
 				return;
-			}else if(starArr.get(col+1).get(row).getColor().equals(star.getColor())){
-				seekStar(starArr.get(col+1).get(row));
+			}else if(starArr.get(starCol+1).get(starRow).getColor().equals(star.getColor())){
+				seekStar(starArr.get(starCol+1).get(starRow));
 			}
 			
 			//向下寻找
-			if(row-1 < 0){
+			if(starRow-1 < 0){
 				return;
-			}else if(starArr.get(col).get(row-1).getColor().equals(star.getColor())){
-				seekStar(starArr.get(col).get(row-1));
+			}else if(starArr.get(starCol).get(starRow-1).getColor().equals(star.getColor())){
+				seekStar(starArr.get(starCol).get(starRow-1));
 			}
 			
 			//向左寻找
-			if(col-1 < 0){
+			if(starCol-1 < 0){
 				return;
-			}else if(starArr.get(col-1).get(row).getColor().equals(star.getColor())){
-				seekStar(starArr.get(col-1).get(row));
+			}else if(starArr.get(starCol-1).get(starRow).getColor().equals(star.getColor())){
+				seekStar(starArr.get(starCol-1).get(starRow));
 			}
 		}catch(Exception e){
 			return;
@@ -166,9 +170,15 @@ public class GameView extends View {
 	
 	private void destoryStar(){
 		for(Star s : selectStars){
-			int col = s.getCol();
-			int row = s.getRow();
-			starArr.get(col).remove(row);
+			int starCol = s.getCol();
+			int starRow = s.getRow();
+			if(starArr.get(starCol).size() == 0){
+				starArr.remove(starCol);
+				updateCol(starCol);
+			}else{
+				starArr.get(starCol).remove(starRow);
+				updateRow(starCol,starRow);
+			}
 		}
 		selectStars = new ArrayList<Star>();
 	}
@@ -182,24 +192,70 @@ public class GameView extends View {
 		}
 		return flag;
 	}
-
-	/*******************************************************************************/
-	public class Coordinate{
-		public int x;
-		public int y;
-		public Coordinate(int x , int y){
-			this.x = x;
-			this.y = y;
+	
+	private void updateRow(int starCol, int starRow){
+		if(starCol >= starArr.size() || starRow >= starArr.get(starCol).size()){
+			return;
 		}
+		for(int i=starRow; i<starArr.get(starCol).size(); i++){
+			Star s = starArr.get(starCol).get(i);
+			s.setRow(s.getRow()-1);
+		}
+	}
+	
+	private void updateCol(int starCol){
+		if(starCol >= starArr.size()){
+			return;
+		}
+		for(int i=starCol; i < starArr.size() ; i++){
+			for(int j=0; j<starArr.get(i).size() ; j++){
+				Star s = starArr.get(i).get(j);
+				s.setCol(i);
+			}
+		}
+	}
+
+	/****************************************************************************/
+	
+	public void startDraw(){
+		drawFlag = true;
+		drawThread = new Thread(new Runnable() {
+			
+			@SuppressWarnings("static-access")
+			@Override
+			public void run() {
+				while(drawFlag){
+					draw();
+					try {
+						drawThread.sleep(40);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		drawThread.start();
+	}
+	
+	public void stopDraw(){
+		drawFlag = false;
+		drawThread.interrupt();
+	}
+	
+	@Override
+	public void surfaceCreated(SurfaceHolder holder) {
+		startDraw();
+	}
+
+	@Override
+	public void surfaceChanged(SurfaceHolder holder, int format, int width,
+			int height) {
 		
-		public boolean equals(Coordinate o) {
-			return this.x == o.x && this.y == o.y;
-		}
+	}
 
-		@Override
-		public String toString() {
-			return new StringBuffer().append("x = ").append(x).append(" , y = ").append(y).toString();
-		}
+	@Override
+	public void surfaceDestroyed(SurfaceHolder holder) {
+		stopDraw();
 	}
 
 }

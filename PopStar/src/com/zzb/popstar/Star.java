@@ -3,7 +3,6 @@ package com.zzb.popstar;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 
 public class Star{
 	
@@ -83,19 +82,14 @@ public class Star{
 	public void zoomIn(){
 		scaleState = true;
 		int w = this.bmp.getWidth() , h = this.bmp.getHeight();
-		Matrix matrix = new Matrix();
-		matrix.postScale((float)1.1, (float)1.1);
-		Bitmap bitmap = Bitmap.createBitmap(this.bmp, 0, 0, w, h, matrix, true);
+		Bitmap bitmap = Bitmap.createScaledBitmap(this.bmp, (int)(w*1.1), (int)(h*1.1), true);
 		this.bmp.recycle();
 		this.bmp = bitmap;
 	}
 	
 	public void zoomOut(){
 		scaleState = false;
-		int w = this.bmp.getWidth() , h = this.bmp.getHeight();
-		Matrix matrix = new Matrix();
-		matrix.postScale((float)starW/w, (float)starH/h);
-		Bitmap bitmap = Bitmap.createBitmap(this.bmp, 0, 0, w, h, matrix, true);
+		Bitmap bitmap = Bitmap.createScaledBitmap(this.bmp, starW, starH, true);
 		this.bmp.recycle();
 		this.bmp = bitmap;
 	}
@@ -103,6 +97,4 @@ public class Star{
 	public boolean equals(Star s) {
 		return this.col == s.col && this.row == s.row && this.color.equals(s.color);
 	}
-	
-	
 }

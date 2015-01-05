@@ -6,11 +6,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class GameScene extends Activity {
+	
+	private GameView canvasView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_game_scene);
+		canvasView = (GameView)findViewById(R.id.gameView);
 	}
 
 	@Override
@@ -30,5 +33,10 @@ public class GameScene extends Activity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
 	}
 }
