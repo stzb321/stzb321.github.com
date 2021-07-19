@@ -1,7 +1,8 @@
 //
 // CleanerScoreScene class
 //
-var starPic = { blue :"chuan1.png", green :"baichi.png", purple:"xiaoq.png", red:"wcm.png", yellow:"aresfly.png"};
+// var starPic = { blue :"chuan1.png", green :"baichi.png", purple:"xiaoq.png", red:"wcm.png", yellow:"aresfly.png"};
+var starPic = { blue :"star_b.png", green :"star_g.png", purple:"star_p.png", red:"star_r.png", yellow:"star_y.png"};
 var colorArr = ["blue" , "green" , "purple", "red", "yellow"];
 var selectedStar = new Array();
 
